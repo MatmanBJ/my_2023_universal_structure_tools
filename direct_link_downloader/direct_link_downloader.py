@@ -1,0 +1,77 @@
+import sys # for arguments from terminal pass
+import subprocess # for terminal usage
+import os # for terminal usage
+import enum # for custom types
+#subprocess.Popen('cmd.exe')
+# https://stackoverflow.com/questions/70308288/open-a-terminal-with-python-but-keep-it-running
+# https://stackoverflow.com/questions/19308415/execute-terminal-command-from-python-in-new-terminal-window
+#subprocess.call('cmd.exe')
+#os.system('dir')
+
+# https://stackoverflow.com/questions/58608361/string-based-enum-in-python
+class YTType(str, enum.Enum):
+    p360 = "18"
+    p720 = "22"
+
+class VKType(str, enum.Enum):
+    p240 = "url240"
+    p360 = "url360"
+    p480 = "url480"
+    p720 = "url720"
+    #p1080 = "url1080"
+
+class UNK1Type(str, enum.Enum):
+    p240 = "240p"
+    p480 = "480p"
+    p720 = "720p"
+    #p1080 = "1080p"
+
+def fileRead():
+
+    # https://pythonworld.ru/tipy-dannyx-v-python/spiski-list-funkcii-i-metody-spiskov.html
+    link = []
+
+    # https://pythonz.net/references/named/file.read/
+    # https://pythonz.net/references/named/file.readline/
+    with open('links.txt') as f:
+        while True:
+            str = f.readline()
+            if not str:
+                break
+            link.append(str)
+        #str = f.read(256) # read 256 symbols
+    
+    return link
+
+def linkDownload(link, t):
+
+    i = 1
+
+    for l in link:
+        if l != "\n": # for skipping empty strings if there are some (it often happens in notes)
+            print("\n---------- LINK n" + str(i) + " ----------\n")
+            print("yt-dlp --no-check-certificate -f " + t.p720 + " " + l)
+            # https://stackoverflow.com/questions/11443011/running-terminal-within-a-python-script?rq=3
+            os.system("yt-dlp --no-check-certificate -f " + t.p720 + " " + l)
+            i = i + 1
+    
+# https://www.geeksforgeeks.org/command-line-arguments-in-python/
+if len(sys.argv) != 3:
+    print("Arguments number error, must be ", n)
+else:
+    if sys.argv[1] in ("--type", "-t"):
+        if sys.argv[2] in ("yt", "vk", "unk1"):
+            # https://stackoverflow.com/questions/664294/is-it-possible-only-to-declare-a-variable-without-assigning-any-value-in-python
+            t = None
+            if sys.argv[2] == "yt":
+                t = YTType
+            elif sys.argv[2] == "vk":
+                t = VKType
+            elif sys.argv[2] == "unk1":
+                t = UNK1Type
+            link = fileRead()
+            linkDownload(link, t)
+        else:
+            print("Arguments error, must be \"yt\", \"vk\"!")
+    else:
+        print("Arguments name error, must be \"--type\" or \"-t\"!")
